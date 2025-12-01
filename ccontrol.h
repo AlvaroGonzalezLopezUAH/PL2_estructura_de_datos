@@ -8,6 +8,15 @@
 #include <sstream>
 #include <iomanip>
 
+const std::string MATERIAS[] = {"Matemáticas","Física","Tecnología","Música","Historia","Lengua"};
+const int N_MATERIAS = 6;
+
+const std::string LOCALIDADES[] = {
+    "Móstoles","Alcalá","Leganés","Fuenlabrada","Getafe","Alcorcón","Torrejón","Parla",
+    "Alcobendas","Coslada","Pozuelo","Rivas","Valdemoro","Majadahonda","Aranjuez","Arganda",
+    "Boadilla","Pinto","Colmenar","Tres Cantos"
+};
+const int N_LOCALIDADES = 20;
 
 struct Pedido {
     int id_libreria;          // 3 cifras
