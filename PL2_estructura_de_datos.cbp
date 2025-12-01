@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="ccontrol.cpp" />
+		<Unit filename="ccontrol.h" />
 		<Unit filename="main.cpp" />
 		<Extensions />
 	</Project>
