@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iomanip>
 
+cout << "Hola Alvaro" ;
+
 const std::string MATERIAS[] = {"Matemáticas","Física","Tecnología","Música","Historia","Lengua"};
 const int N_MATERIAS = 6;
 
