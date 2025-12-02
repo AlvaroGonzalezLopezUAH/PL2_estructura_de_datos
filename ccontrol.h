@@ -8,12 +8,12 @@
 #include <sstream>
 #include <iomanip>
 
-cout << "Hola Alvaro" ;
+using namespace std;
 
-const std::string MATERIAS[] = {"Matemáticas","Física","Tecnología","Música","Historia","Lengua"};
+const string MATERIAS[] = {"Matemáticas","Física","Tecnología","Música","Historia","Lengua"};
 const int N_MATERIAS = 6;
 
-const std::string LOCALIDADES[] = {
+const string LOCALIDADES[] = {
     "Móstoles","Alcalá","Leganés","Fuenlabrada","Getafe","Alcorcón","Torrejón","Parla",
     "Alcobendas","Coslada","Pozuelo","Rivas","Valdemoro","Majadahonda","Aranjuez","Arganda",
     "Boadilla","Pinto","Colmenar","Tres Cantos"
@@ -22,11 +22,11 @@ const int N_LOCALIDADES = 20;
 
 struct Pedido {
     int id_libreria;          // 3 cifras
-    std::string id_pedido;    // 'P' + 5 cifras
-    std::string cod_libro;    // 3 dígitos + letra + 2 dígitos (ej: 963K76)
-    std::string materia;
+    string id_pedido;    // 'P' + 5 cifras
+    string cod_libro;    // 3 dígitos + letra + 2 dígitos (ej: 963K76)
+    string materia;
     int unidades;
-    std::string fecha_envio;  // DD-MM-2025
+    string fecha_envio;  // DD-MM-2025
 
 };
 
@@ -38,7 +38,7 @@ struct NodoPedido {
 
 struct Libreria {
     int id_libreria;       // 3 cifras
-    std::string localidad;
+    string localidad;
     ListaPedidos pedidos;  // lista de pedidos (inicialmente vacía)
 };
 
@@ -48,3 +48,46 @@ struct NodoABB {
     NodoABB* der;
     NodoABB(const Libreria& l) : info(l), izq(nullptr), der(nullptr) {}
 };
+
+// ABB de Librerías
+class ArbolLibrerias {
+private:
+    NodoABB* raiz;
+    NodoABB* insertarRec(NodoABB* nodo, const Libreria& l);
+    NodoABB* borrarRec(NodoABB* nodo, int id, bool& borrado);
+    NodoABB* minimo(NodoABB* nodo);
+    void inOrderContarPedidos(NodoABB* nodo) const;
+    NodoABB* buscarRec(NodoABB* nodo, int id) const;
+    void destruirRec(NodoABB* nodo);
+    void recorrerYBuscarPedido(NodoABB* nodo, const string& id_pedido, NodoABB*& encontrada, Pedido*& pfound);
+    void estadisticasRec(NodoABB* nodo, int& libreriaMaxId, int& maxPedidos,
+                         string& libroMasVendido, int& ventasLibroMax,
+                         string& materiaMasVendida, int& ventasMateriaMax,
+                         Pedido* bufferPedidos, int& bufCount, int bufMax) const;
+    void recorrerYRepartir(NodoABB* nodo, Pedido pedidos[], int n);
+public:
+    ArbolLibrerias();
+    ~ArbolLibrerias();
+    void insertar(const Libreria& l);
+    bool borrar(int id_libreria);
+    NodoABB* buscar(int id_libreria) const;
+    void mostrarConteoPedidos() const; // muestra árbol (inorder) con nº pedidos por librería
+    void mostrarTodosPedidosDe(int id_libreria) const;
+    Pedido* buscarPedidoPorId(const string& id_pedido);
+    bool extraerPedidoPorId(const string& id_pedido);
+    bool moverPedido(const string& id_pedido, int id_destino);
+    void generarYRepartirPedidosAleatorios(int N_PED);
+    void estadisticas(); // muestra: libro más vendido, materia más exitosa, librería con más ventas
+};
+
+int aleatorioEntre(int a, int b); // inclusive
+string generarIdLibreria(); // devuelve 3 cifras como string
+int generarIdLibreriaInt(); // devuelve int 3 cifras
+string generarIdPedido();
+string generarCodLibro();
+string generarMateria();
+string generarLocalidad();
+string generarFechaAleatoria(); // formato DD-MM-2025
+Pedido generarPedidoAleatorio();
+
+#endif
