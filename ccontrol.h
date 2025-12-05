@@ -36,6 +36,27 @@ struct NodoPedido {
     NodoPedido(const Pedido& p) : dato(p), sig(nullptr) {}
 };
 
+class ListaPedidos {
+private:
+    NodoPedido* cabeza; // Puntero al primer pedido
+    friend class ArbolLibrerias;
+public:
+    ListaPedidos();
+    ~ListaPedidos();
+
+    // Métodos principales para el menú
+    void insertar(const Pedido& p); // Para insertar pedidos
+    bool eliminar(string id_pedido); // Opción 5
+    Pedido* buscar(string id_pedido); // Opción 4
+    void mostrar() const; // Opción 3
+
+    // Métodos auxiliares
+    bool estaVacia() const;
+    NodoPedido* getCabeza() const; // Para recorrer desde fuera si hace falta
+
+    int numPedidos() const;
+};
+
 struct Libreria {
     int id_libreria;       // 3 cifras
     string localidad;
@@ -53,7 +74,7 @@ struct NodoABB {
 class ArbolLibrerias {
 private:
     NodoABB* raiz;
-    NodoABB* insertarRec(NodoABB* nodo, const Libreria& l);
+    NodoABB* insertarRec(NodoABB* nodo, const Libreria& l, bool& exito);
     NodoABB* borrarRec(NodoABB* nodo, int id, bool& borrado);
     NodoABB* minimo(NodoABB* nodo);
     void inOrderContarPedidos(NodoABB* nodo) const;
@@ -68,7 +89,7 @@ private:
 public:
     ArbolLibrerias();
     ~ArbolLibrerias();
-    void insertar(const Libreria& l);
+    bool insertar(const Libreria& l);
     bool borrar(int id_libreria);
     NodoABB* buscar(int id_libreria) const;
     void mostrarConteoPedidos() const; // muestra árbol (inorder) con nº pedidos por librería
