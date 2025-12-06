@@ -1,6 +1,5 @@
 #ifndef CCONTROL_H
 #define CCONTROL_H
-
 #include <iostream>
 #include <string>
 #include <ctime>
@@ -80,6 +79,7 @@ private:
     void inOrderContarPedidos(NodoABB* nodo) const;
     NodoABB* buscarRec(NodoABB* nodo, int id) const;
     void destruirRec(NodoABB* nodo);
+    void mostrarIdsRec(NodoABB* nodo) const;
     void recorrerYBuscarPedido(NodoABB* nodo, const string& id_pedido, NodoABB*& encontrada, Pedido*& pfound);
     void estadisticasRec(NodoABB* nodo, int& libreriaMaxId, int& maxPedidos,
                          string& libroMasVendido, int& ventasLibroMax,
@@ -90,10 +90,12 @@ public:
     ArbolLibrerias();
     ~ArbolLibrerias();
     bool insertar(const Libreria& l);
+    bool insertarPedidoEnLibreria(int id_libreria, const std::string& id_pedido, const std::string& cod_libro, const std::string& materia, int unidades, const std::string& fecha);
     bool borrar(int id_libreria);
     NodoABB* buscar(int id_libreria) const;
     void mostrarConteoPedidos() const; // muestra árbol (inorder) con nº pedidos por librería
     void mostrarTodosPedidosDe(int id_libreria) const;
+    void mostrarIdsLibrerias() const;
     Pedido* buscarPedidoPorId(const string& id_pedido);
     bool extraerPedidoPorId(const string& id_pedido);
     bool moverPedido(const string& id_pedido, int id_destino);
@@ -109,6 +111,7 @@ string generarCodLibro();
 string generarMateria();
 string generarLocalidad();
 string generarFechaAleatoria(); // formato DD-MM-2025
-void generarPedidoAleatorio(int n_pedidos);
+void generarPedidoAleatorio(ArbolLibrerias& editorial, int n);
+
 
 #endif

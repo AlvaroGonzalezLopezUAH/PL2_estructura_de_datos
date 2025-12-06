@@ -3,27 +3,38 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include <cctype>
 //Permite que el cliente escriba sin tildes ni mayusculas
+#include <string>
+#include <cctype>
+using namespace std;
+
+// Función para normalizar texto (minúsculas, sin tildes)
 string normalizar(const string& s) {
     string r;
     r.reserve(s.size());
+
     for (char c : s) {
-        // Convertimos a minúscula
-        char x = tolower((unsigned char)c);
+        int x = static_cast<unsigned char>(c);
+        x = tolower(x);
 
         // Quitamos tildes
         switch (x) {
-            case 'á': x = 'a'; break;
-            case 'é': x = 'e'; break;
-            case 'í': x = 'i'; break;
-            case 'ó': x = 'o'; break;
-            case 'ú': x = 'u'; break;
+            case 225: x = 'a'; break; // á
+            case 233: x = 'e'; break; // é
+            case 237: x = 'i'; break; // í
+            case 243: x = 'o'; break; // ó
+            case 250: x = 'u'; break; // ú
+            case 241: x = 'n'; break; // ñ -> n
         }
-        r.push_back(x);
+
+        r.push_back(static_cast<char>(x));
     }
+
     return r;
 }
-//Logica para que las ciudades introducidas en la funcion 1 esten definidas
+
+// Función para validar localidad
 bool localidadValida(const string& loc) {
     const string LOCALIDADES[] = {
         "Móstoles","Alcalá","Leganés","Fuenlabrada","Getafe","Alcorcón","Torrejón","Parla",
@@ -39,8 +50,10 @@ bool localidadValida(const string& loc) {
             return true;
         }
     }
+
     return false;
 }
+
 ListaPedidos::ListaPedidos() : cabeza(nullptr) {
     // Inicializamos la lista vacía
 }
@@ -54,7 +67,11 @@ ListaPedidos::~ListaPedidos() {
         delete borrar;
     }
 }
-
+void ListaPedidos::insertar(const Pedido& p) {
+    NodoPedido* nuevo = new NodoPedido(p);
+    nuevo->sig = cabeza;
+    cabeza = nuevo;
+}
 //Implementación de ArbolLibrerias
 
 ArbolLibrerias::ArbolLibrerias() : raiz(nullptr) {
@@ -72,7 +89,23 @@ void ArbolLibrerias::destruirRec(NodoABB* nodo) {
         delete nodo;
     }
 }
+void ArbolLibrerias::mostrarIdsLibrerias() const {
+    mostrarIdsRec(raiz);
+}
 
+// Función recursiva auxiliar
+void ArbolLibrerias::mostrarIdsRec(NodoABB* nodo) const {
+    if (nodo != nullptr) {
+        // Recorrer subárbol izquierdo
+        mostrarIdsRec(nodo->izq);
+
+        // Procesar el nodo actual
+        cout << "ID Libreria: " << nodo->info.id_libreria << endl;
+
+        // Recorrer subárbol derecho
+        mostrarIdsRec(nodo->der);
+    }
+}
 // --- LÓGICA DE INSERCIÓN (Opción 1) ---
 
 // Función pública:
@@ -213,7 +246,19 @@ NodoABB* ArbolLibrerias::borrarRec(NodoABB* nodo, int id, bool& borrado) {
     }
     return nodo;
 }
-
+bool ArbolLibrerias::insertarPedidoEnLibreria(int id_libreria, const string& id_pedido, const string& cod_libro, const string& materia, int unidades, const string& fecha) {
+    NodoABB* nodo = buscar(id_libreria);
+    if (nodo == nullptr) return false;
+    Pedido p;
+    p.id_libreria = id_libreria;
+    p.id_pedido = id_pedido;
+    p.cod_libro = cod_libro;
+    p.materia = materia;
+    p.unidades = unidades;
+    p.fecha_envio = fecha;
+    nodo->info.pedidos.insertar(p);
+    return true;
+}
 // --- LÓGICA PARA LA OPCION 3 (MOSTRAR LOS PEDIDOS DE UNA LIB)
 
 // Función pública de búsqueda
@@ -277,10 +322,8 @@ void ArbolLibrerias::mostrarTodosPedidosDe(int id_libreria) const {
     }
 }
 // ---LOGICA PARA LA OPCION 8 (crear n_pedidos)
-void generarPedidoAleatorio(int n_pedidos) {
+void generarPedidoAleatorio(ArbolLibrerias& editorial, int n_pedidos) {
     cout << "Creando los siguientes pedidos nuevos:\n\n";
-
-    // Encabezado de la tabla
     cout << left
          << setw(12) << "ID Libreria"
          << setw(12) << "ID Pedido"
@@ -293,17 +336,27 @@ void generarPedidoAleatorio(int n_pedidos) {
 
     string materias[] = {"Matematicas", "Musica", "Fisica", "Lengua", "Historia", "Tecnologia"};
 
-    for (int i = 0; i < n_pedidos; i++) {
+    // Pedimos al usuario que elija una librería EXISTENTE
+    int idLib;
+    cout << "Introduzca el ID de la libreria donde desea generar los pedidos: ";
+    cin >> idLib;
 
-        // Datos aleatorios
-        int idLib = 500 + rand() % 400;
+    // Verificamos que exista
+    if (editorial.buscar(idLib) == nullptr) {
+        cout << ">>> Error: La libreria con ID " << idLib << " no existe.\n";
+        return;
+    }
+
+    for (int i = 0; i < n_pedidos; i++) {
         string idPedido = "P" + to_string(20000 + rand() % 80000);
-        string codLibro = generarCodLibro(); // Tu función
+        string codLibro = generarCodLibro();
         string materia = materias[rand() % 6];
         int unidades = 5 + rand() % 20;
-        string fecha = generarFechaAleatoria(); // Tu función
+        string fecha = generarFechaAleatoria();
 
-        // Mostrar tabla alineada
+        // Insertamos EN ESA librería (que ya sabemos que existe)
+        editorial.insertarPedidoEnLibreria(idLib, idPedido, codLibro, materia, unidades, fecha);
+
         cout << left
              << setw(12) << idLib
              << setw(12) << idPedido
@@ -314,6 +367,7 @@ void generarPedidoAleatorio(int n_pedidos) {
              << "\n";
     }
 }
+
 //---ZONA PARA GENERACION ALEATORIA DE RECURSOS
 string generarCodLibro() {
     string letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

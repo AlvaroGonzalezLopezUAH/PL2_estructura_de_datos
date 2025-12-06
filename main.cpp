@@ -89,7 +89,7 @@ int main() {
                 return 1;
             }
             cout << "Generando " << n_pedidos << " pedido(s)...\n" << endl;
-            generarPedidoAleatorio(n_pedidos);
+            generarPedidoAleatorio(editorial, n_pedidos);
             cout << "\n>>> Proceso finalizado." << endl;
             break;
 
