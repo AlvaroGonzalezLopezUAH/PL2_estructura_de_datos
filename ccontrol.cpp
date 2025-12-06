@@ -2,7 +2,45 @@
 #include <iomanip>
 #include <sstream>
 #include <cstring>
+#include <algorithm>
+//Permite que el cliente escriba sin tildes ni mayusculas
+string normalizar(const string& s) {
+    string r;
+    r.reserve(s.size());
+    for (char c : s) {
+        // Convertimos a minúscula
+        char x = tolower((unsigned char)c);
 
+        // Quitamos tildes
+        switch (x) {
+            case 'á': x = 'a'; break;
+            case 'é': x = 'e'; break;
+            case 'í': x = 'i'; break;
+            case 'ó': x = 'o'; break;
+            case 'ú': x = 'u'; break;
+        }
+        r.push_back(x);
+    }
+    return r;
+}
+//Logica para que las ciudades introducidas en la funcion 1 esten definidas
+bool localidadValida(const string& loc) {
+    const string LOCALIDADES[] = {
+        "Móstoles","Alcalá","Leganés","Fuenlabrada","Getafe","Alcorcón","Torrejón","Parla",
+        "Alcobendas","Coslada","Pozuelo","Rivas","Valdemoro","Majadahonda","Aranjuez","Arganda",
+        "Boadilla","Pinto","Colmenar","Tres Cantos"
+    };
+    const int N = sizeof(LOCALIDADES) / sizeof(LOCALIDADES[0]);
+
+    string locNorm = normalizar(loc);
+
+    for (int i = 0; i < N; ++i) {
+        if (locNorm == normalizar(LOCALIDADES[i])) {
+            return true;
+        }
+    }
+    return false;
+}
 ListaPedidos::ListaPedidos() : cabeza(nullptr) {
     // Inicializamos la lista vacía
 }
@@ -104,7 +142,9 @@ void ArbolLibrerias::inOrderContarPedidos(NodoABB* nodo) const {
 
         // 3. Recorrer derecha (mayores)
         inOrderContarPedidos(nodo->der);
-    }
+    };
+
+
 }
 
 // --- LÓGICA DE BORRADO (Opción 2) ---
@@ -236,5 +276,62 @@ void ArbolLibrerias::mostrarTodosPedidosDe(int id_libreria) const {
         nodo->info.pedidos.mostrar();
     }
 }
+// ---LOGICA PARA LA OPCION 8 (crear n_pedidos)
+void generarPedidoAleatorio(int n_pedidos) {
+    cout << "Creando los siguientes pedidos nuevos:\n\n";
 
+    // Encabezado de la tabla
+    cout << left
+         << setw(12) << "ID Libreria"
+         << setw(12) << "ID Pedido"
+         << setw(12) << "Cod Libro"
+         << setw(15) << "Materia"
+         << setw(10) << "Unidades"
+         << setw(12) << "Fecha"
+         << "\n";
+    cout << string(73, '-') << "\n";
+
+    string materias[] = {"Matematicas", "Musica", "Fisica", "Lengua", "Historia", "Tecnologia"};
+
+    for (int i = 0; i < n_pedidos; i++) {
+
+        // Datos aleatorios
+        int idLib = 500 + rand() % 400;
+        string idPedido = "P" + to_string(20000 + rand() % 80000);
+        string codLibro = generarCodLibro(); // Tu función
+        string materia = materias[rand() % 6];
+        int unidades = 5 + rand() % 20;
+        string fecha = generarFechaAleatoria(); // Tu función
+
+        // Mostrar tabla alineada
+        cout << left
+             << setw(12) << idLib
+             << setw(12) << idPedido
+             << setw(12) << codLibro
+             << setw(15) << materia
+             << setw(10) << unidades
+             << setw(12) << fecha
+             << "\n";
+    }
+}
+//---ZONA PARA GENERACION ALEATORIA DE RECURSOS
+string generarCodLibro() {
+    string letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    string numeros = "0123456789";
+    string codigo = "";
+
+    for (int i = 0; i < 3; i++)
+        codigo += letras[rand() % letras.size()];
+
+    for (int i = 0; i < 3; i++)
+        codigo += numeros[rand() % numeros.size()];
+
+    return codigo;
+}
+string generarFechaAleatoria() {
+    int dia = 1 + rand() % 28;
+    int mes = 1 + rand() % 12;
+
+    return to_string(dia) + "-" + to_string(mes) + "-2025";
+}
 

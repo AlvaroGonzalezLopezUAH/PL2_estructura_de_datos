@@ -109,6 +109,6 @@ string generarCodLibro();
 string generarMateria();
 string generarLocalidad();
 string generarFechaAleatoria(); // formato DD-MM-2025
-Pedido generarPedidoAleatorio();
+void generarPedidoAleatorio(int n_pedidos);
 
 #endif

@@ -2,6 +2,8 @@
 #include "ccontrol.h"
 
 using namespace std;
+bool localidadValida(const std::string& loc);
+int n_pedidos;
 
 int main() {
     // Creamos el árbol (vacío al inicio)
@@ -31,6 +33,13 @@ int main() {
                 cin >> nuevaLib.id_libreria;
                 cout << "Introduzca Localidad: ";
                 cin >> nuevaLib.localidad;
+
+                // Validamos la localidad
+                if (!localidadValida(nuevaLib.localidad)) {
+                cout << ">>> Error: La localidad introducida no es válida." << endl;
+                cout << "    Solo se permiten localidades Madrileñas como: Móstoles, Alcalá, Getafe, etc." << endl;
+                break; // No intentamos insertar
+                }
 
                 // USAMOS EL IF PARA VERIFICAR
                 if (editorial.insertar(nuevaLib)) {
@@ -71,8 +80,19 @@ int main() {
                 editorial.mostrarConteoPedidos();
                 break;
             case 8:
-                // Pendiente...
-                break;
+            cout << "=== GENERADOR AUTOMATICO DE PEDIDOS ===" << endl;
+            cout << "¿Cuántos pedidos nuevos desea generar? ";
+            cin >> n_pedidos;
+
+            if (n_pedidos < 0) {
+                cout << ">>> Error: El número de pedidos debe ser >= 0." << endl;
+                return 1;
+            }
+            cout << "Generando " << n_pedidos << " pedido(s)...\n" << endl;
+            generarPedidoAleatorio(n_pedidos);
+            cout << "\n>>> Proceso finalizado." << endl;
+            break;
+
             case 0:
                 cout << "Saliendo del programa..." << endl;
                 break;
