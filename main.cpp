@@ -4,6 +4,8 @@
 using namespace std;
 bool localidadValida(const std::string& loc);
 int n_pedidos;
+string id;
+Pedido* p = nullptr;
 
 int main() {
     // Creamos el árbol (vacío al inicio)
@@ -67,8 +69,23 @@ int main() {
                 editorial.mostrarTodosPedidosDe(idBuscar);
                 break;
             case 4:
-                // Pendiente...
-                break;
+                cout << "Introduce el ID del pedido: ";
+                cin >> id;
+
+                p = editorial.buscarPedidoPorId(id);
+
+                if (p != nullptr) {
+                    cout << "Pedido encontrado:" << endl;
+                    cout << "ID Libreria: " << p->id_libreria << endl;
+                    cout << "ID Pedido: " << p->id_pedido << endl;
+                    cout << "Cod Libro: " << p->cod_libro << endl;
+                    cout << "Materia: " << p->materia << endl;
+                    cout << "Unidades: " << p->unidades << endl;
+                    cout << "Fecha: " << p->fecha_envio << endl;
+                } else {
+                    cout << "Pedido no encontrado." << endl;
+                }
+
             case 5:
                 // Pendiente...
                 break;

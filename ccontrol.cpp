@@ -114,6 +114,25 @@ bool ArbolLibrerias::insertar(const Libreria& l) {
     raiz = insertarRec(raiz, l, exito);
     return exito; // Devolvemos el resultado al main
 }
+Pedido* ArbolLibrerias::buscarPedidoPorId(const string& id_pedido) {
+    return buscarPedidoPorIdRec(raiz, id_pedido);
+}
+Pedido* ArbolLibrerias::buscarPedidoPorIdRec(NodoABB* nodo, const string& id_pedido) {
+    if (nodo == nullptr) return nullptr;
+
+    // Buscar en la lista de pedidos de esta librería
+    Pedido* p = nodo->info.pedidos.buscarPorId(id_pedido);
+    if (p != nullptr) {
+        return p; // Encontrado
+    }
+
+    // Buscar en el subárbol izquierdo
+    p = buscarPedidoPorIdRec(nodo->izq, id_pedido);
+    if (p != nullptr) return p;
+
+    // Buscar en el subárbol derecho
+    return buscarPedidoPorIdRec(nodo->der, id_pedido);
+}
 
 // Función privada:
 NodoABB* ArbolLibrerias::insertarRec(NodoABB* nodo, const Libreria& l, bool& exito) {
@@ -367,6 +386,18 @@ void generarPedidoAleatorio(ArbolLibrerias& editorial, int n_pedidos) {
              << "\n";
     }
 }
+Pedido* ListaPedidos::buscarPorId(const string& id_pedido) {
+    NodoPedido* aux = cabeza;
+
+    while (aux != nullptr) {
+        if (aux->dato.id_pedido == id_pedido) {
+            return &(aux->dato);  // Devolvemos la dirección del pedido encontrado
+        }
+        aux = aux->sig;
+    }
+    return nullptr; // No encontrado
+}
+
 
 //---ZONA PARA GENERACION ALEATORIA DE RECURSOS
 string generarCodLibro() {

@@ -48,6 +48,9 @@ public:
     bool eliminar(string id_pedido); // Opción 5
     Pedido* buscar(string id_pedido); // Opción 4
     void mostrar() const; // Opción 3
+    Pedido* buscarPorId(const string& id_pedido);
+
+
 
     // Métodos auxiliares
     bool estaVacia() const;
@@ -77,6 +80,7 @@ private:
     NodoABB* borrarRec(NodoABB* nodo, int id, bool& borrado);
     NodoABB* minimo(NodoABB* nodo);
     void inOrderContarPedidos(NodoABB* nodo) const;
+    Pedido* buscarPedidoPorIdRec(NodoABB* nodo, const string& id_pedido);
     NodoABB* buscarRec(NodoABB* nodo, int id) const;
     void destruirRec(NodoABB* nodo);
     void mostrarIdsRec(NodoABB* nodo) const;
@@ -96,6 +100,7 @@ public:
     void mostrarConteoPedidos() const; // muestra árbol (inorder) con nº pedidos por librería
     void mostrarTodosPedidosDe(int id_libreria) const;
     void mostrarIdsLibrerias() const;
+    bool buscarPedidoGlobal(const string& id_pedido) const;
     Pedido* buscarPedidoPorId(const string& id_pedido);
     bool extraerPedidoPorId(const string& id_pedido);
     bool moverPedido(const string& id_pedido, int id_destino);
