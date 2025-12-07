@@ -4,53 +4,63 @@
 #include <cstring>
 #include <algorithm>
 #include <cctype>
-//Permite que el cliente escriba sin tildes ni mayusculas
+
 #include <string>
 #include <cctype>
 using namespace std;
 
-// Función para normalizar texto (minúsculas, sin tildes)
-string normalizar(const string& s) {
-    string r;
-    r.reserve(s.size());
-
+// Función para limpiar: quita espacios y pasa a minúsculas
+string limpiar(const string& s) {
+    string r = "";
     for (char c : s) {
-        int x = static_cast<unsigned char>(c);
-        x = tolower(x);
-
-        // Quitamos tildes
-        switch (x) {
-            case 225: x = 'a'; break; // á
-            case 233: x = 'e'; break; // é
-            case 237: x = 'i'; break; // í
-            case 243: x = 'o'; break; // ó
-            case 250: x = 'u'; break; // ú
-            case 241: x = 'n'; break; // ñ -> n
+        if (isalnum((unsigned char)c)) {
+            r += tolower((unsigned char)c);
+        } else if ((unsigned char)c > 127) {
+            // Dejamos pasar caracteres extendidos (tildes) por si acaso
+            r += c;
         }
-
-        r.push_back(static_cast<char>(x));
+        // Ignoramos espacios
     }
-
     return r;
 }
 
-// Función para validar localidad
-bool localidadValida(const string& loc) {
-    const string LOCALIDADES[] = {
-        "Móstoles","Alcalá","Leganés","Fuenlabrada","Getafe","Alcorcón","Torrejón","Parla",
-        "Alcobendas","Coslada","Pozuelo","Rivas","Valdemoro","Majadahonda","Aranjuez","Arganda",
-        "Boadilla","Pinto","Colmenar","Tres Cantos"
-    };
-    const int N = sizeof(LOCALIDADES) / sizeof(LOCALIDADES[0]);
+// Función auxiliar para buscar patrones (Huella Digital)
+bool cumplePatron(const string& input, char letraInicio, const string& subcadena) {
+    if (input.empty()) return false;
+    // 1. Comprobar letra inicial (ej: M de Mostoles)
+    if (input[0] != letraInicio) return false;
+    // 2. Comprobar si contiene la parte segura (ej: ostoles)
+    if (input.find(subcadena) == string::npos) return false;
 
-    string locNorm = normalizar(loc);
+    return true;
+}
 
-    for (int i = 0; i < N; ++i) {
-        if (locNorm == normalizar(LOCALIDADES[i])) {
+// VALIDADOR ROBUSTO (Ignora problemas de tildes)
+bool localidadValida(string& loc) {
+    string input = limpiar(loc);
+
+    for (int i = 0; i < N_LOCALIDADES; ++i) {
+        bool coincidencia = false;
+
+        // 1. Comprobación Exacta (contra la versión limpia del sistema)
+        //    Nota: limpiar("Móstoles") da "móstoles", así que coincide con input "mostoles"
+        if (input == limpiar(LOCALIDADES[i])) {
+            coincidencia = true;
+        }
+        // 2. Comprobación de Patrones (Huella Digital) para casos difíciles
+        else if (i == 0 && cumplePatron(input, 'm', "stoles")) coincidencia = true;
+        else if (i == 1 && cumplePatron(input, 'a', "lcal")) coincidencia = true;
+        else if (i == 2 && cumplePatron(input, 'l', "legan")) coincidencia = true;
+        else if (i == 5 && cumplePatron(input, 'a', "corc")) coincidencia = true; // Alcorcón
+        else if (i == 6 && cumplePatron(input, 't', "rrej")) coincidencia = true; // Torrejón
+        else if (i == 19 && cumplePatron(input, 't', "rescantos")) coincidencia = true;
+
+        if (coincidencia) {
+            // Si sabemos qué ciudad es, SOBREESCRIBIMOS lo que puso el usuario con el nombre oficial del array (que tiene tildes y mayúsculas bien puestas)
+            loc = LOCALIDADES[i];
             return true;
         }
     }
-
     return false;
 }
 

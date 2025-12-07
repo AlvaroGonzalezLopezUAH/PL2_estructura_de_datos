@@ -13,9 +13,9 @@ const string MATERIAS[] = {"Matemáticas","Física","Tecnología","Música","Histori
 const int N_MATERIAS = 6;
 
 const string LOCALIDADES[] = {
-    "Móstoles","Alcalá","Leganés","Fuenlabrada","Getafe","Alcorcón","Torrejón","Parla",
-    "Alcobendas","Coslada","Pozuelo","Rivas","Valdemoro","Majadahonda","Aranjuez","Arganda",
-    "Boadilla","Pinto","Colmenar","Tres Cantos"
+    "Móstoles", "Alcalá", "Leganés", "Fuenlabrada", "Getafe", "Alcorcón", "Torrejón", "Parla",
+    "Alcobendas", "Coslada", "Pozuelo", "Rivas", "Valdemoro", "Majadahonda", "Aranjuez", "Arganda",
+    "Boadilla", "Pinto", "Colmenar", "Tres Cantos"
 };
 const int N_LOCALIDADES = 20;
 
@@ -49,8 +49,6 @@ public:
     Pedido* buscar(string id_pedido); // Opción 4
     void mostrar() const; // Opción 3
     Pedido* buscarPorId(const string& id_pedido);
-
-
 
     // Métodos auxiliares
     bool estaVacia() const;
@@ -108,6 +106,7 @@ public:
     void estadisticas(); // muestra: libro más vendido, materia más exitosa, librería con más ventas
 };
 
+bool localidadValida(string& loc);
 int aleatorioEntre(int a, int b); // inclusive
 string generarIdLibreria(); // devuelve 3 cifras como string
 int generarIdLibreriaInt(); // devuelve int 3 cifras

@@ -30,26 +30,38 @@ int main() {
             case 1: {
                 // OPCION 1: INSERTAR
                 Libreria nuevaLib;
+
+                // 1. Pedir ID
                 cout << "Introduzca ID de la libreria (3 cifras): ";
                 cin >> nuevaLib.id_libreria;
-                cout << "Introduzca Localidad: ";
-                cin >> nuevaLib.localidad;
 
-                // Validamos la localidad
-                if (!localidadValida(nuevaLib.localidad)) {
-                cout << ">>> Error: La localidad introducida no es válida." << endl;
-                cout << "    Solo se permiten localidades Madrileñas como: Móstoles, Alcalá, Getafe, etc." << endl;
-                break; // No intentamos insertar
-                }
+                // 2. Limpieza del buffer (NECESARIO para que getline no salte)
+                cin.ignore();
 
-                // USAMOS EL IF PARA VERIFICAR
+                // 3. Pedir Localidad en bucle hasta que sea válida
+                bool locEsValida = false;
+                do {
+                    cout << "Introduzca Localidad (Ej: Móstoles, Tres Cantos...): ";
+
+                    // Usamos getline para permitir espacios (Tres Cantos)
+                    getline(cin, nuevaLib.localidad);
+
+                    if (localidadValida(nuevaLib.localidad)) {
+                        locEsValida = true;
+                    } else {
+                        cout << ">>> Error: Localidad no reconocida. Intente de nuevo." << endl;
+                    }
+                } while (!locEsValida);
+
+                // 4. Intentar insertar en el árbol
                 if (editorial.insertar(nuevaLib)) {
-                    cout << ">>> Exito: Libreria insertada correctamente." << endl;
+                    cout << "Libreria insertada correctamente." << endl;
                 } else {
                     cout << ">>> Error: Ya existe una libreria con el ID " << nuevaLib.id_libreria << "." << endl;
                 }
                 break;
             }
+
             case 2:
                 int idBorrar;
                 cout << "Introduzca ID de la libreria a borrar: ";
