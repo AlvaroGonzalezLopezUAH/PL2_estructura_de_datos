@@ -84,6 +84,37 @@ void ListaPedidos::insertar(const Pedido& p) {
 }
 //Implementación de ArbolLibrerias
 
+bool ListaPedidos::eliminar(string id_pedido) {
+    // 1. Si la lista está vacía, nada
+    if (cabeza == nullptr) return false;
+
+    // 2. Caso especial: El pedido a borrar es el PRIMERO (cabeza)
+    if (cabeza->dato.id_pedido == id_pedido) {
+        NodoPedido* borrar = cabeza;
+        cabeza = cabeza->sig; // Saltamos al siguiente
+        delete borrar;        // Liberamos memoria
+        return true;
+    }
+
+    // 3. Caso normal: Buscar en el resto de la lista
+    NodoPedido* actual = cabeza;
+    while (actual->sig != nullptr) {
+        // Miramos "el siguiente" sin movernos todavía
+        if (actual->sig->dato.id_pedido == id_pedido) {
+            NodoPedido* borrar = actual->sig;
+
+            // "Puenteamos": El actual apunta al siguiente del borrado
+            actual->sig = borrar->sig;
+
+            delete borrar;
+            return true;
+        }
+        actual = actual->sig; // Avanzamos
+    }
+
+    return false; // No lo encontramos
+}
+
 ArbolLibrerias::ArbolLibrerias() : raiz(nullptr) {
     // Inicializamos el árbol vacío
 }
@@ -430,3 +461,25 @@ string generarFechaAleatoria() {
     return to_string(dia) + "-" + to_string(mes) + "-2025";
 }
 
+// Función pública
+bool ArbolLibrerias::extraerPedidoPorId(const string& id_pedido) {
+    return borrarPedidoRec(raiz, id_pedido);
+}
+
+// Función recursiva (Añadiremos su prototipo al .h en el paso 3)
+bool ArbolLibrerias::borrarPedidoRec(NodoABB* nodo, const string& id_pedido) {
+    if (nodo == nullptr) return false;
+
+    // 1. Intentamos borrarlo de ESTA librería
+    // Si eliminar() devuelve true, es que estaba aquí y ya lo ha borrado. ¡Trabajo hecho!
+    if (nodo->info.pedidos.eliminar(id_pedido)) {
+        cout << ">>> Pedido eliminado de la libreria: " << nodo->info.id_libreria << endl;
+        return true;
+    }
+
+    // 2. Si no, probamos izquierda
+    if (borrarPedidoRec(nodo->izq, id_pedido)) return true;
+
+    // 3. Si no, probamos derecha
+    return borrarPedidoRec(nodo->der, id_pedido);
+}

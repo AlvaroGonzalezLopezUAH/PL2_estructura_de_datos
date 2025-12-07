@@ -96,10 +96,19 @@ int main() {
                 } else {
                     cout << "Pedido no encontrado." << endl;
                 }
-            }
-            case 5:
-                // Pendiente...
                 break;
+            }
+            case 5:{
+                string idPed;
+                cout << "Introduzca el ID del pedido a extraer (borrar): ";
+                cin >> idPed;
+
+                if (editorial.extraerPedidoPorId(idPed)) {
+                    cout << "Operacion realizada con exito." << endl;
+                } else {
+                    cout << ">>> Error: No se pudo encontrar el pedido con ID " << idPed << "." << endl;
+                }
+                break;}
             case 6:
                 // Pendiente...
                 break;

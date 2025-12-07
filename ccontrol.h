@@ -88,6 +88,7 @@ private:
                          string& materiaMasVendida, int& ventasMateriaMax,
                          Pedido* bufferPedidos, int& bufCount, int bufMax) const;
     void recorrerYRepartir(NodoABB* nodo, Pedido pedidos[], int n);
+    bool borrarPedidoRec(NodoABB* nodo, const string& id_pedido);
 public:
     ArbolLibrerias();
     ~ArbolLibrerias();
