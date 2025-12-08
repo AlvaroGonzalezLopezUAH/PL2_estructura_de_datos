@@ -9,6 +9,59 @@
 #include <cctype>
 using namespace std;
 
+//---ZONA PARA GENERACION ALEATORIA DE RECURSOS
+
+// Función auxiliar para generar números aleatorios (inclusive)
+int aleatorioEntre(int a, int b) {
+    return a + rand() % (b - a + 1);
+}
+
+// Función para elegir una localidad al azar de la lista oficial
+string generarLocalidad() {
+    int indice = rand() % N_LOCALIDADES;
+    return LOCALIDADES[indice];
+}
+
+// Función para generar ID de librería (3 cifras, rellenando con ceros)
+string generarIdLibreria() {
+    int id = aleatorioEntre(0, 999);
+    stringstream ss;
+    ss << setfill('0') << setw(3) << id;
+    return ss.str();
+}
+
+// Función para generar ID de Pedido (P + 5 cifras)
+string generarIdPedido() {
+    int num = aleatorioEntre(10000, 99999);
+    return "P" + to_string(num);
+}
+
+string generarMateria() {
+    return MATERIAS[rand() % N_MATERIAS];
+}
+
+string generarCodLibro() {
+    string letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    string numeros = "0123456789";
+    string codigo = "";
+
+    for (int i = 0; i < 3; i++)
+        codigo += letras[rand() % letras.size()];
+
+    for (int i = 0; i < 3; i++)
+        codigo += numeros[rand() % numeros.size()];
+
+    return codigo;
+}
+
+string generarFechaAleatoria() {
+    int dia = 1 + rand() % 28;
+    int mes = 1 + rand() % 12;
+    return to_string(dia) + "-" + to_string(mes) + "-2025";
+}
+
+
+
 // Función para limpiar: quita espacios y pasa a minúsculas
 string limpiar(const string& s) {
     string r = "";
@@ -295,7 +348,7 @@ NodoABB* ArbolLibrerias::borrarRec(NodoABB* nodo, int id, bool& borrado) {
         // OJO: Esto hace una copia superficial de la lista (copia el puntero 'cabeza')
         nodo->info = temp->info;
 
-        // 3. TRUCO DE INGENIERÍA:
+        // 3. importante:
         // Como 'temp' se va a borrar abajo, su destructor querrá borrar la lista de pedidos.
         // Pero esa lista ahora pertenece a 'nodo'. Debemos evitar que 'temp' la destruya.
         // Accedemos a la parte privada gracias al 'friend class' y anulamos el puntero del original.
@@ -306,19 +359,7 @@ NodoABB* ArbolLibrerias::borrarRec(NodoABB* nodo, int id, bool& borrado) {
     }
     return nodo;
 }
-bool ArbolLibrerias::insertarPedidoEnLibreria(int id_libreria, const string& id_pedido, const string& cod_libro, const string& materia, int unidades, const string& fecha) {
-    NodoABB* nodo = buscar(id_libreria);
-    if (nodo == nullptr) return false;
-    Pedido p;
-    p.id_libreria = id_libreria;
-    p.id_pedido = id_pedido;
-    p.cod_libro = cod_libro;
-    p.materia = materia;
-    p.unidades = unidades;
-    p.fecha_envio = fecha;
-    nodo->info.pedidos.insertar(p);
-    return true;
-}
+
 // --- LÓGICA PARA LA OPCION 3 (MOSTRAR LOS PEDIDOS DE UNA LIB)
 
 // Función pública de búsqueda
@@ -439,28 +480,6 @@ Pedido* ListaPedidos::buscarPorId(const string& id_pedido) {
     return nullptr; // No encontrado
 }
 
-
-//---ZONA PARA GENERACION ALEATORIA DE RECURSOS
-string generarCodLibro() {
-    string letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    string numeros = "0123456789";
-    string codigo = "";
-
-    for (int i = 0; i < 3; i++)
-        codigo += letras[rand() % letras.size()];
-
-    for (int i = 0; i < 3; i++)
-        codigo += numeros[rand() % numeros.size()];
-
-    return codigo;
-}
-string generarFechaAleatoria() {
-    int dia = 1 + rand() % 28;
-    int mes = 1 + rand() % 12;
-
-    return to_string(dia) + "-" + to_string(mes) + "-2025";
-}
-
 // Función pública
 bool ArbolLibrerias::extraerPedidoPorId(const string& id_pedido) {
     return borrarPedidoRec(raiz, id_pedido);
@@ -482,4 +501,133 @@ bool ArbolLibrerias::borrarPedidoRec(NodoABB* nodo, const string& id_pedido) {
 
     // 3. Si no, probamos derecha
     return borrarPedidoRec(nodo->der, id_pedido);
+}
+
+//Iniciar el programa con 10 librerias
+void ArbolLibrerias::generarLibreriasInicio(int n) {
+    cout << "Creado el ABB con " << n << " nodos:" << endl;
+
+    int insertadas = 0;
+    while (insertadas < n) {
+        Libreria l;
+        // Generamos ID aleatorio (entre 100 y 999 para que sean 3 cifras)
+        l.id_libreria = aleatorioEntre(100, 999);
+        l.localidad = generarLocalidad();
+
+        // Intentamos insertar. Si devuelve true (éxito), sumamos 1.
+        // Si devuelve false (ya existía el ID), el bucle repite sin sumar.
+        if (insertar(l)) {
+            insertadas++;
+        }
+    }
+}
+
+
+// Funciones auxiliares locales para recolectar IDs válidos
+int auxiliarContarNodos(NodoABB* nodo) {
+    if (nodo == nullptr) return 0;
+    return 1 + auxiliarContarNodos(nodo->izq) + auxiliarContarNodos(nodo->der);
+}
+
+void auxiliarGuardarIds(NodoABB* nodo, int* lista, int& indice) {
+    if (nodo == nullptr) return;
+    // Guardamos el ID de esta librería
+    lista[indice] = nodo->info.id_libreria;
+    indice++;
+    // Seguimos recorriendo
+    auxiliarGuardarIds(nodo->izq, lista, indice);
+    auxiliarGuardarIds(nodo->der, lista, indice);
+}
+
+// Función auxiliar necesaria para el reparto
+bool ArbolLibrerias::insertarPedidoEnLibreria(int id_libreria, const string& id_pedido, const string& cod_libro, const string& materia, int unidades, const string& fecha) {
+    NodoABB* nodo = buscar(id_libreria);
+    if (nodo != nullptr) {
+        Pedido p;
+        p.id_libreria = id_libreria;
+        p.id_pedido = id_pedido;
+        p.cod_libro = cod_libro;
+        p.materia = materia;
+        p.unidades = unidades;
+        p.fecha_envio = fecha;
+        nodo->info.pedidos.insertar(p);
+        return true;
+    }
+    return false;
+}
+
+void ArbolLibrerias::generarYRepartirPedidosAleatorios(int n_pedidos) {
+    // 1. PREPARACIÓN: Obtener los IDs REALES que existen en el árbol
+    int totalLibrerias = auxiliarContarNodos(raiz);
+
+    if (totalLibrerias == 0) {
+        cout << ">>> Error: No hay librerias en el sistema. Genere librerias primero (Opcion 1 o Inicio)." << endl;
+        return;
+    }
+
+    // Creamos una lista temporal con los IDs válidos (ej: 100, 240, 890...)
+    int* idsValidos = new int[totalLibrerias];
+    int contador = 0;
+    auxiliarGuardarIds(raiz, idsValidos, contador);
+
+
+    // 2. GENERACIÓN
+    cout << "\nGenerando " << n_pedidos << " pedidos aleatorios..." << endl;
+    cout << "-------------------------------------------------------------------------------" << endl;
+    cout << "| ID Lib | ID Pedido | Cod Libro | Materia       | Unid | Fecha      |" << endl;
+    cout << "-------------------------------------------------------------------------------" << endl;
+
+    struct PedidoTemp {
+        int idLib;
+        string idPed;
+        string cod;
+        string mat;
+        int unid;
+        string fec;
+    };
+
+    PedidoTemp* lote = new PedidoTemp[n_pedidos];
+
+    for (int i = 0; i < n_pedidos; i++) {
+        int indiceAzar = rand() % totalLibrerias;
+        lote[i].idLib = idsValidos[indiceAzar];
+
+        lote[i].idPed = generarIdPedido();
+        lote[i].cod = generarCodLibro();
+        lote[i].mat = generarMateria();
+        lote[i].unid = aleatorioEntre(1, 20);
+        lote[i].fec = generarFechaAleatoria();
+
+        cout << "| " << setw(7) << lote[i].idLib
+             << "| " << setw(10) << lote[i].idPed
+             << "| " << setw(10) << lote[i].cod
+             << "| " << left << setw(14) << lote[i].mat
+             << "| " << right << setw(5) << lote[i].unid
+             << "| " << setw(11) << lote[i].fec << "|" << endl;
+    }
+    cout << "-------------------------------------------------------------------------------" << endl;
+
+    cout << "\nPresione ENTER para distribuir los pedidos en las librerias...";
+    //cin.ignore();
+    cin.get();
+
+    // 3. REPARTO
+    int exitos = 0;
+    int fallos = 0;
+
+    for (int i = 0; i < n_pedidos; i++) {
+        if (insertarPedidoEnLibreria(lote[i].idLib, lote[i].idPed, lote[i].cod, lote[i].mat, lote[i].unid, lote[i].fec)) {
+            exitos++;
+        } else {
+            fallos++;
+        }
+    }
+
+    cout << "\n--- REPARTO FINALIZADO ---" << endl;
+    cout << "Pedidos asignados correctamente: " << exitos << endl;
+    cout << "Pedidos perdidos (Libreria no existe): " << fallos << endl;
+
+    // Limpiamos memoria dinámica
+    delete[] lote;
+    delete[] idsValidos;
 }

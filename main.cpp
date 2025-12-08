@@ -7,10 +7,35 @@ int n_pedidos;
 string id;
 
 int main() {
-    // Creamos el árbol (vacío al inicio)
-    ArbolLibrerias editorial;
+    srand(time(nullptr));
 
+    ArbolLibrerias editorial;
     int opcion;
+
+    // FASE DE INICIO AUTOMÁTICO
+
+    // 1. Generar 10 librerías aleatorias (N_LIBRERIAS)
+    editorial.generarLibreriasInicio(N_LIBRERIAS);
+
+    // 2. Mostrar estado inicial (deben salir con 0 pedidos)
+    cout << "Arbol vacio creado:" << endl;
+    editorial.mostrarConteoPedidos();
+
+    cout << "\nPresione ENTER para generar los pedidos..." << endl;
+    cin.ignore();
+
+    // 3. Generar 30 pedidos, mostrarlos y repartirlos al pulsar Enter
+    editorial.generarYRepartirPedidosAleatorios(N_PEDIDOS);
+
+    // 4. Mostrar estado final (con los pedidos ya sumados)
+    cout << "\nPedidos repartidos. Estado del arbol:" << endl;
+    editorial.mostrarConteoPedidos();
+
+    cout << "\nIniciando sistema de gestion..." << endl;
+    cout << "Presione ENTER para ir al menu.";
+    cin.get();
+
+    // FIN FASE DE INICIO
 
     do {
         cout << "\n--- MENU CENTRO DE CONTROL ---" << endl;
@@ -22,11 +47,13 @@ int main() {
         cout << "6- Llevar un pedido concreto de una libreria a otra." << endl;
         cout << "7- Mostrar una estadistica de las librerias." << endl;
         cout << "8- Continuar con la distribucion de pedidos." << endl;
+        cout << "9- Ver ABB en inorden." << endl;
         cout << "0- Salir." << endl;
         cout << "Seleccione una opcion: ";
         cin >> opcion;
 
         switch(opcion) {
+
             case 1: {
                 // OPCION 1: INSERTAR
                 Libreria nuevaLib;
@@ -73,12 +100,14 @@ int main() {
                     cout << "Error: La libreria con ID " << idBorrar << " no existe." << endl;
                 }
                 break;
+
             case 3:
                 int idBuscar;
                 cout << "Introduzca ID de la libreria a consultar: ";
                 cin >> idBuscar;
                 editorial.mostrarTodosPedidosDe(idBuscar);
                 break;
+
             case 4:{
                 cout << "Introduce el ID del pedido: ";
                 cin >> id;
@@ -98,6 +127,7 @@ int main() {
                 }
                 break;
             }
+
             case 5:{
                 string idPed;
                 cout << "Introduzca el ID del pedido a extraer (borrar): ";
@@ -109,13 +139,15 @@ int main() {
                     cout << ">>> Error: No se pudo encontrar el pedido con ID " << idPed << "." << endl;
                 }
                 break;}
+
             case 6:
                 // Pendiente...
                 break;
+
             case 7:
-                //no está completa, por ahora muestra una lista simple para ver que se estan creando las librerias correctamente
-                editorial.mostrarConteoPedidos();
+                // Pendiente...
                 break;
+
             case 8:
             cout << "=== GENERADOR AUTOMATICO DE PEDIDOS ===" << endl;
             cout << "¿Cuántos pedidos nuevos desea generar? ";
@@ -130,9 +162,14 @@ int main() {
             cout << "\n>>> Proceso finalizado." << endl;
             break;
 
+            case 9:
+                editorial.mostrarConteoPedidos();
+                break;
+
             case 0:
                 cout << "Saliendo del programa..." << endl;
                 break;
+
             default:
                 cout << "Opcion no valida." << endl;
         }

@@ -9,6 +9,9 @@
 
 using namespace std;
 
+const int N_LIBRERIAS = 10;
+const int N_PEDIDOS = 30;
+
 const string MATERIAS[] = {"Matemáticas","Física","Tecnología","Música","Historia","Lengua"};
 const int N_MATERIAS = 6;
 
@@ -105,6 +108,7 @@ public:
     bool moverPedido(const string& id_pedido, int id_destino);
     void generarYRepartirPedidosAleatorios(int N_PED);
     void estadisticas(); // muestra: libro más vendido, materia más exitosa, librería con más ventas
+    void generarLibreriasInicio(int n); // Genera n librerías aleatorias vacías
 };
 
 bool localidadValida(string& loc);
