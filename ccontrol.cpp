@@ -424,6 +424,18 @@ void ArbolLibrerias::mostrarTodosPedidosDe(int id_libreria) const {
 }
 // ---LOGICA PARA LA OPCION 8 (crear n_pedidos)
 void generarPedidoAleatorio(ArbolLibrerias& editorial, int n_pedidos) {
+
+    // Pedimos al usuario que elija una librería EXISTENTE
+    int idLib;
+    cout << "Introduzca el ID de la libreria donde desea generar los pedidos: ";
+    cin >> idLib;
+
+    // Verificamos que exista
+    if (editorial.buscar(idLib) == nullptr) {
+        cout << ">>> Error: La libreria con ID " << idLib << " no existe.\n";
+        return;
+    }
+
     cout << "Creando los siguientes pedidos nuevos:\n\n";
     cout << left
          << setw(12) << "ID Libreria"
@@ -436,17 +448,6 @@ void generarPedidoAleatorio(ArbolLibrerias& editorial, int n_pedidos) {
     cout << string(73, '-') << "\n";
 
     string materias[] = {"Matematicas", "Musica", "Fisica", "Lengua", "Historia", "Tecnologia"};
-
-    // Pedimos al usuario que elija una librería EXISTENTE
-    int idLib;
-    cout << "Introduzca el ID de la libreria donde desea generar los pedidos: ";
-    cin >> idLib;
-
-    // Verificamos que exista
-    if (editorial.buscar(idLib) == nullptr) {
-        cout << ">>> Error: La libreria con ID " << idLib << " no existe.\n";
-        return;
-    }
 
     for (int i = 0; i < n_pedidos; i++) {
         string idPedido = "P" + to_string(20000 + rand() % 80000);
@@ -630,4 +631,47 @@ void ArbolLibrerias::generarYRepartirPedidosAleatorios(int n_pedidos) {
     // Limpiamos memoria dinámica
     delete[] lote;
     delete[] idsValidos;
+}
+
+// IMPLEMENTACIÓN OPCIÓN 6: MOVER PEDIDO
+
+bool ArbolLibrerias::moverPedido(const string& id_pedido, int id_destino) {
+    // Verificar si la librería de destino existe
+    NodoABB* nodoDestino = buscar(id_destino);
+    if (nodoDestino == nullptr) {
+        cout << ">>> Error: La libreria de destino (" << id_destino << ") no existe." << endl;
+        return false;
+    }
+
+    // Buscar el pedido para ver si existe y obtener sus datos
+    Pedido* p = buscarPedidoPorId(id_pedido);
+    if (p == nullptr) {
+        cout << ">>> Error: El pedido " << id_pedido << " no existe en el sistema." << endl;
+        return false;
+    }
+
+    // Verificar si ya está en esa librería
+    if (p->id_libreria == id_destino) {
+        cout << ">>> Aviso: El pedido ya se encuentra en la libreria " << id_destino << "." << endl;
+        return false;
+    }
+
+    // HACER UNA COPIA DE SEGURIDAD DEL PEDIDO
+    // Es vital porque 'extraerPedidoPorId' va a liberar la memoria del original
+    Pedido copiaPedido = *p;
+
+    // Actualizamos el ID de librería en la copia (ahora pertenece a la nueva)
+    copiaPedido.id_libreria = id_destino;
+
+    // Borramos el pedido de la librería original (Origen).Sabemos que existe, así que debería devolver true
+    if (extraerPedidoPorId(id_pedido)) {
+
+        // Insertamos la copia en la librería de destino
+        nodoDestino->info.pedidos.insertar(copiaPedido);
+
+        cout << ">>> Traslado completado: Pedido movido a " << nodoDestino->info.localidad << "." << endl;
+        return true;
+    }
+
+    return false; // Fallo inesperado al borrar
 }

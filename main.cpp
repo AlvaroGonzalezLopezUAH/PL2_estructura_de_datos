@@ -115,7 +115,7 @@ int main() {
                 Pedido* p = editorial.buscarPedidoPorId(id);
 
                 if (p != nullptr) {
-                    cout << "Pedido encontrado:" << endl;
+                    cout << "\nPedido encontrado:" << endl;
                     cout << "ID Libreria: " << p->id_libreria << endl;
                     cout << "ID Pedido: " << p->id_pedido << endl;
                     cout << "Cod Libro: " << p->cod_libro << endl;
@@ -130,7 +130,7 @@ int main() {
 
             case 5:{
                 string idPed;
-                cout << "Introduzca el ID del pedido a extraer (borrar): ";
+                cout << "\nIntroduzca el ID del pedido a extraer (borrar): ";
                 cin >> idPed;
 
                 if (editorial.extraerPedidoPorId(idPed)) {
@@ -140,9 +140,31 @@ int main() {
                 }
                 break;}
 
-            case 6:
-                // Pendiente...
-                break;
+            case 6:{
+                string idPed;
+                int idDest;
+
+                cout << "\n--- MOVER PEDIDO ---" << endl;
+                cout << "Introduzca el ID del pedido a mover: ";
+                cin >> idPed;
+
+                // Primero verificamos visualmente si existe
+                Pedido* check = editorial.buscarPedidoPorId(idPed);
+                if (check != nullptr) {
+                    cout << "El pedido esta actualmente en la libreria ID: " << check->id_libreria << endl;
+
+                    cout << "Introduzca el ID de la libreria de DESTINO: ";
+                    cin >> idDest;
+
+                    if (editorial.moverPedido(idPed, idDest)) {
+                        cout << "Operacion realizada con exito." << endl;
+                    } else {
+                        cout << "No se pudo mover el pedido." << endl;
+                    }
+                } else {
+                    cout << ">>> Error: Pedido no encontrado." << endl;
+                }
+                break;}
 
             case 7:
                 // Pendiente...
