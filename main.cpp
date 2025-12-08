@@ -167,7 +167,7 @@ int main() {
                 break;}
 
             case 7:
-                // Pendiente...
+                editorial.estadisticas();
                 break;
 
             case 8:

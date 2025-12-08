@@ -675,3 +675,156 @@ bool ArbolLibrerias::moverPedido(const string& id_pedido, int id_destino) {
 
     return false; // Fallo inesperado al borrar
 }
+
+// IMPLEMENTACIÓN OPCIÓN 7: ESTADÍSTICAS
+
+// Función principal que calcula y muestra los datos
+void ArbolLibrerias::estadisticas() {
+    // 1. Preparación de variables
+    int libreriaMaxId = -1;
+    int maxPedidos = -1;
+
+    // Buffer temporal para "sacar" todos los pedidos del árbol y analizarlos juntos
+    // (Asumimos un máximo seguro de 1000 pedidos para esta práctica)
+    int bufMax = 1000;
+    Pedido* bufferPedidos = new Pedido[bufMax];
+    int bufCount = 0; // Cuántos pedidos hemos guardado realmente
+
+    // Variables basura para pasar por referencia (se calcularán después de llenar el buffer)
+    string strFicticio;
+    int intFicticio;
+
+    cout << "\nCalculando estadisticas globales del sistema..." << endl;
+
+    // 2. LLAMADA RECURSIVA:
+    // - Recorre el árbol.
+    // - Encuentra la librería con más pedidos.
+    // - Llena el bufferPedidos con TODOS los pedidos de TODAS las librerías.
+    estadisticasRec(raiz, libreriaMaxId, maxPedidos, strFicticio, intFicticio, strFicticio, intFicticio, bufferPedidos, bufCount, bufMax);
+
+    // 3. PROCESAMIENTO DE DATOS
+    if (bufCount == 0) {
+        cout << ">>> No hay datos suficientes (Sin pedidos en el sistema)." << endl;
+        delete[] bufferPedidos;
+        return;
+    }
+
+    // A) Calcular Materia Más Exitosa
+    // Usamos un array de contadores alineado con el array global MATERIAS[]
+    int conteoMaterias[N_MATERIAS] = {0}; // Inicializados a 0
+
+    for (int i = 0; i < bufCount; i++) {
+        // Buscamos a qué materia corresponde este pedido
+        for (int j = 0; j < N_MATERIAS; j++) {
+            if (bufferPedidos[i].materia == MATERIAS[j]) {
+                conteoMaterias[j] += bufferPedidos[i].unidades; // Sumamos las unidades vendidas
+                break;
+            }
+        }
+    }
+
+    // Buscamos el ganador
+    string materiaMasVendida = "N/A";
+    int ventasMateriaMax = -1;
+
+    for (int j = 0; j < N_MATERIAS; j++) {
+        if (conteoMaterias[j] > ventasMateriaMax) {
+            ventasMateriaMax = conteoMaterias[j];
+            materiaMasVendida = MATERIAS[j];
+        }
+    }
+
+    // B) Calcular Libro Más Vendido
+    // Estrategia: Doble bucle para contar frecuencias
+    string libroMasVendido = "N/A";
+    int ventasLibroMax = -1;
+
+    // Array para no contar el mismo libro dos veces
+    bool* procesado = new bool[bufCount];
+    for(int i=0; i<bufCount; i++) procesado[i] = false;
+
+    for (int i = 0; i < bufCount; i++) {
+        if (procesado[i]) continue; // Si ya lo contamos, saltar
+
+        string codigoActual = bufferPedidos[i].cod_libro;
+        int ventasActuales = 0;
+
+        // Contamos cuántas unidades suma este código en TODO el buffer
+        for (int j = i; j < bufCount; j++) {
+            if (bufferPedidos[j].cod_libro == codigoActual) {
+                ventasActuales += bufferPedidos[j].unidades;
+                procesado[j] = true; // Marcamos para no volver a mirarlo
+            }
+        }
+
+        // ¿Es el nuevo récord?
+        if (ventasActuales > ventasLibroMax) {
+            ventasLibroMax = ventasActuales;
+            libroMasVendido = codigoActual;
+        }
+    }
+    delete[] procesado;
+
+    // 4. MOSTRAR RESULTADOS FINALES
+    cout << "\n========================================" << endl;
+    cout << "       INFORME DE ESTADISTICAS" << endl;
+    cout << "========================================" << endl;
+
+    cout << "1. LIBRERIA CON MAS VENTAS (Mayor N. Pedidos):" << endl;
+    if (libreriaMaxId != -1) {
+        NodoABB* topLib = buscar(libreriaMaxId);
+        cout << "   ID: " << libreriaMaxId;
+        if (topLib) cout << " (" << topLib->info.localidad << ")";
+        cout << "\n   Total Pedidos: " << maxPedidos << endl;
+    }
+
+    cout << "\n2. LIBRO MAS VENDIDO:" << endl;
+    cout << "   Codigo: " << libroMasVendido << endl;
+    cout << "   Unidades totales: " << ventasLibroMax << endl;
+
+    cout << "\n3. MATERIA MAS EXITOSA:" << endl;
+    cout << "   Area: " << materiaMasVendida << endl;
+    cout << "   Unidades totales: " << ventasMateriaMax << endl;
+
+    cout << "========================================" << endl;
+
+    // Limpieza de memoria
+    delete[] bufferPedidos;
+}
+
+// Función Recursiva: Recorre el árbol para llenar el buffer y buscar la librería top
+void ArbolLibrerias::estadisticasRec(NodoABB* nodo, int& libreriaMaxId, int& maxPedidos,
+                                     string& libroMasVendido, int& ventasLibroMax,
+                                     string& materiaMasVendida, int& ventasMateriaMax,
+                                     Pedido* bufferPedidos, int& bufCount, int bufMax) const {
+    if (nodo == nullptr) return;
+
+    // 1. Análisis Local (Librería actual)
+    // Miramos si esta librería tiene más pedidos que el récord actual
+    int nPeds = nodo->info.pedidos.numPedidos();
+    if (nPeds > maxPedidos) {
+        maxPedidos = nPeds;
+        libreriaMaxId = nodo->info.id_libreria;
+    }
+
+    // 2. Volcado de datos (Sacamos los pedidos de la lista y los metemos al buffer)
+    NodoPedido* aux = nodo->info.pedidos.getCabeza();
+    while (aux != nullptr) {
+        if (bufCount < bufMax) {
+            bufferPedidos[bufCount] = aux->dato; // Copia del pedido al array gigante
+            bufCount++;
+        }
+        aux = aux->sig;
+    }
+
+    // 3. Recursividad (Seguir recorriendo el árbol)
+    estadisticasRec(nodo->izq, libreriaMaxId, maxPedidos, libroMasVendido, ventasLibroMax,
+                    materiaMasVendida, ventasMateriaMax, bufferPedidos, bufCount, bufMax);
+    estadisticasRec(nodo->der, libreriaMaxId, maxPedidos, libroMasVendido, ventasLibroMax,
+                    materiaMasVendida, ventasMateriaMax, bufferPedidos, bufCount, bufMax);
+}
+
+// Getter necesario para acceder a la cabeza de la lista desde la clase Arbol
+NodoPedido* ListaPedidos::getCabeza() const {
+    return cabeza;
+}
