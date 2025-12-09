@@ -5,6 +5,7 @@ using namespace std;
 bool localidadValida(const std::string& loc);
 int n_pedidos;
 string id;
+string letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 int main() {
     srand(time(nullptr));
@@ -61,6 +62,16 @@ int main() {
                 // 1. Pedir ID
                 cout << "Introduzca ID de la libreria (3 cifras): ";
                 cin >> nuevaLib.id_libreria;
+
+                if (cin.fail()) {
+                cin.clear(); // Limpia el estado de error
+                cin.ignore(1000, '\n'); // Descarta la entrada incorrecta
+                cout << "Error: Solo se permiten numeros.\n";
+                }
+                if (nuevaLib.id_libreria < 100 || nuevaLib.id_libreria>999){
+                    cout<<"Numero de libreria no valido ";
+                    break;
+                }
 
                 // 2. Limpieza del buffer (NECESARIO para que getline no salte)
                 cin.ignore();
