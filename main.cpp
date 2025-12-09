@@ -66,7 +66,7 @@ int main() {
                 if (cin.fail()) {
                 cin.clear(); // Limpia el estado de error
                 cin.ignore(1000, '\n'); // Descarta la entrada incorrecta
-                cout << "Error: Solo se permiten numeros.\n";
+                cout << "Error: Solo se permiten numeros de 3 cifras.\n";
                 }
                 if (nuevaLib.id_libreria < 100 || nuevaLib.id_libreria>999){
                     cout<<"Numero de libreria no valido ";
