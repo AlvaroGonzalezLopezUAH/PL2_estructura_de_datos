@@ -5,8 +5,6 @@ using namespace std;
 bool localidadValida(const std::string& loc);
 int n_pedidos;
 string id;
-string letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 int main() {
     srand(time(nullptr));
 
